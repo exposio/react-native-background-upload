@@ -1,4 +1,5 @@
-# react-native-background-upload [![npm version](https://badge.fury.io/js/react-native-background-upload.svg)](https://badge.fury.io/js/react-native-background-upload)
+# react-native-background-upload [![npm version](https://badge.fury.io/js/react-native-background-upload.svg)](https://badge.fury.io/js/react-native-background-upload) ![GitHub Actions status](https://github.com/Vydia/react-native-background-upload/workflows/Test%20iOS%20Example%20App/badge.svg) ![GitHub Actions status](https://github.com/Vydia/react-native-background-upload/workflows/Test%20Android%20Example%20App/badge.svg) [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
+
 The only React Native http post file uploader with android and iOS background support.  If you are uploading large files like videos, use this so your users can background your app during a long upload.
 
 NOTE: Use major version 4 with RN 47.0 and greater.  If you have RN less than 47, use 3.0.  To view all available versions:
@@ -27,7 +28,10 @@ Note: if you are installing on React Native < 0.47, use `react-native-background
 
 ##### Android
 
-No further actions required.
+###### ProGuard
+Add this to your ProGuard configuration:
+
+`-keep class net.gotev.uploadservice.** { *; }`
 
 ### Automatic Native Library Linking (React Native < 0.60)
 
@@ -79,7 +83,7 @@ No further actions required.
 
 ## 3. Expo
 
-To use this library with [Expo](https://expo.io) one must first detach (eject) the project and follow [step 2](#2-link-native-code) instructions. Additionally on iOS there is a must to add a Header Search Path to other dependencies which are managed using Pods. To do so one has to add `$(SRCROOT)/../../../ios/Pods/Headers/Public` to Header Search Path in `VydiaRNFileUploader` module using XCode. 
+To use this library with [Expo](https://expo.io) one must first detach (eject) the project and follow [step 2](#2-link-native-code) instructions. Additionally on iOS there is a must to add a Header Search Path to other dependencies which are managed using Pods. To do so one has to add `$(SRCROOT)/../../../ios/Pods/Headers/Public` to Header Search Path in `VydiaRNFileUploader` module using XCode.
 
 # Usage
 
@@ -99,7 +103,8 @@ const options = {
   // Below are options only supported on Android
   notification: {
     enabled: true
-  }
+  },
+  useUtf8Charset: true
 }
 
 Upload.startUpload(options).then((uploadId) => {
@@ -146,7 +151,7 @@ All top-level methods are available as named exports or methods on the default e
 
 ### startUpload(options)
 
-The primary method you will use, this starts the upload process.  
+The primary method you will use, this starts the upload process.
 
 Returns a promise with the string ID of the upload.  Will reject if there is a connection problem, the file doesn't exist, or there is some other problem.
 
@@ -165,6 +170,8 @@ Returns a promise with the string ID of the upload.  Will reject if there is a c
 |`field`|string|Required if `type: 'multipart'`||The form field name for the file.  Only used when `type: 'multipart`|`uploaded-file`|
 |`parameters`|object|Optional||Additional form fields to include in the HTTP request. Only used when `type: 'multipart`||
 |`notification`|Notification object (see below)|Optional||Android only.  |`{ enabled: true, onProgressTitle: "Uploading...", autoClear: true }`|
+|`useUtf8Charset`|boolean|Optional||Android only. Set to true to use `utf-8` as charset. ||
+|`appGroup`|string|Optional|iOS only. App group ID needed for share extensions to be able to properly call the library. See: https://developer.apple.com/documentation/foundation/nsfilemanager/1412643-containerurlforsecurityapplicati
 
 ### Notification Object (Android Only)
 |Name|Type|Required|Description|Example|
@@ -248,6 +255,7 @@ Event Data
 |`id`|string|Required|The ID of the upload.|
 |`responseCode`|string|Required|HTTP status code received|
 |`responseBody`|string|Required|HTTP response body|
+|`responseHeaders`|string|Required|HTTP response headers (Android)|
 
 ### cancelled
 
@@ -292,7 +300,7 @@ Is there an example/sandbox app to test out this package?
 
 > Yes, there is a simple react native app that comes with an [express](https://github.com/expressjs/express) server where you can see react-native-background-upload in action and try things out in an isolated local environment.
 
-[ReactNativeBackgroundUploadExample](https://github.com/Vydia/ReactNativeBackgroundUploadExample)
+[RNBackgroundExample](https://github.com/Vydia/react-native-background-upload/blob/master/example/RNBackgroundExample)
 
 Does it support iOS camera roll assets?
 
@@ -309,7 +317,7 @@ Why should I use this file uploader instead of others that I've Googled like [re
 
 # Contributing
 
-See [CONTRIBUTING.md](https://github.com/Vydia/react-native-background-upload/CONTRIBUTING.md).
+See [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 # Common Issues
 
@@ -326,7 +334,7 @@ Just add it above (not within) `dependencies` and you'll be fine.
 
 
 ## BREAKING CHANGE IN 2.0
-Two big things happened in version 2.0.  First, thehe Android package name had to be changed, as it conflicted with our own internal app.  My bad.  Second, we updated the android upload service dependency to the latest, but that requires the app have a compileSdkVersion and targetSdkVersion or 25.
+Two big things happened in version 2.0.  First, the Android package name had to be changed, as it conflicted with our own internal app.  My bad.  Second, we updated the android upload service dependency to the latest, but that requires the app have a compileSdkVersion and targetSdkVersion or 25.
 
 To upgrade:
 In `MainApplication.java`:
